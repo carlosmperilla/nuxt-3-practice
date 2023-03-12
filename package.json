@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.4.1",
+    "airtable": "^0.11.6",
     "marked": "^4.2.12",
     "nuxt": "^3.2.3",
     "sass": "^1.59.1",
