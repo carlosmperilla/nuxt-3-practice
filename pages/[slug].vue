@@ -11,7 +11,7 @@
                 <img :src="post.cover" :alt="post.cover" />
                 <figcaption>Portada - {{ post.title }}</figcaption>
             </figure>
-            <section class="markdown" v-html="getRenderPostContent"></section>
+            <section class="markdown" v-html="post.content"></section>
         </article>
     </div>
 </template>
@@ -19,17 +19,27 @@
 <script setup>
     import { marked } from 'marked'; // Para renderizar Markdown
 
-    const post = reactive({
-        slug: 'mi-primer-post',
-        title: 'Mi primer post',
-        author: 'Carlos Perilla',
-        updated: '8/06/2022',
-        description: 'Lorem ispum dolor sit amet',
-        cover: 'https://via.placeholder.com/1024x420',
-        content: '# Title\n\n## Second title\n\nLorem ipsum dolor sit amet',
+    // Para definir los middlewares que se usan en este recurso.
+    // definePageMeta({
+    //     middleware: ['redirect-home']
+    // })
+
+    const { params } = useRoute()
+    const { data: { value: { article } } } = await useAsyncData('article', () => {
+        const { slug } = params
+        return $fetch(`http://localhost:9999/.netlify/functions/article?slug=${slug}`);
     })
 
-    const getRenderPostContent = computed(() => marked(post.content))
+    const post = computed(() => {
+        return {
+            title: article?.title,
+            author: article['author-name'][0],
+            updated: new Date(article?.updated).toLocaleDateString(),
+            description: article?.description,
+            cover: article?.cover[0].thumbnails.full.url,
+            content: marked(article?.content),
+      }
+    })
 
     // Para el titulo dinamico de la pagina.
     // Y los metadatos.

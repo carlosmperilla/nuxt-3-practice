@@ -4,7 +4,7 @@
         <div class="content">
             <main>
                 <ArticleCard
-                    v-for="article in articles"
+                    v-for="article in articleContent.articles"
                     :key="article.slug"
                     :="article"
                 />
@@ -18,13 +18,27 @@
     // Mientras este en /components
     // https://nuxt.com/docs/guide/concepts/auto-imports
     // import AboutMe from '~/components/AboutMe.vue'
-    const articles = reactive([
-        {
-            title: 'Post de prueba',
-            slug: 'post-de-prueba',
-            date: new Date(),
-        }
-    ])
+    const articleContent = reactive({
+        articles: [],
+    })
+
+    const url = `http://localhost:9999/.netlify/functions/articles`
+    // Desestructuramos data, y el Proxy 'value', para obtener el Proxy 'articles'
+    const { data: {value: { articles }}} = await useAsyncData('articles', () => $fetch(url))
+    
+    onMounted(() => {
+        articleContent.articles = articles.map((a) => ({
+            // Hacemos copia de los datos en a
+            ...a,
+            // Sobreescribimos author, date y cover.
+            // Para tener un acceso más directo a los datos.
+            author: a['author-name'][0],
+            date: new Date(a.updated),
+            cover: a.cover[0]?.thumbnails.large.url,
+        }))
+    })
+
+    
 </script>
 
 <style lang="scss">
