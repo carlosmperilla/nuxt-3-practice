@@ -12,6 +12,9 @@ const headers = {
   'Access-Control-Allow-Origin': '*',
   /* Required for cookies, authorization headers with HTTPS */
   'Access-Control-Allow-Credentials': true,
+  // Permite que la petición se pueda hacer con useFetch.
+  // https://stackoverflow.com/a/65007227
+  'Access-Control-Allow-Headers': '*' 
 }
 
 const toJSON = (str) => {
@@ -27,6 +30,9 @@ export async function handler(evt) {
     const { httpMethod } = evt
     const { article } = evt.queryStringParameters
 
+    // Esto tambien es para evitar problemas con el navegador.
+    if (httpMethod === 'OPTIONS') return {statusCode: 200, headers}
+    
     if (httpMethod !== 'POST') throw new Error('Invalid method')
 
     const body = toJSON(evt.body)
@@ -50,7 +56,7 @@ export async function handler(evt) {
     console.error(e)
     return {
       statusCode: 400,
-      headers,
+      headers
     }
   }
 }

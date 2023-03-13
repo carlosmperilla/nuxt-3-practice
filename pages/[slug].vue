@@ -12,6 +12,24 @@
                 <figcaption>Portada - {{ post.title }}</figcaption>
             </figure>
             <section class="markdown" v-html="post.content"></section>
+
+            <div ref="comments" class="comments">
+                <h3 class="title">Comentarios</h3>
+                <p class="total-comments">
+                    Hay {{ article['total-comments'] || 0 }} comentarios
+                </p>
+                <div class="comments-list">
+                <CommentItem
+                    v-for="comment in comments"
+                    :key="comment._id"
+                    v-bind="comment"
+                />
+                </div>
+                <div class="add-comment">
+                    <InputComment @submit="createComment" />
+                </div>
+            </div>
+
         </article>
     </div>
 </template>
@@ -29,30 +47,11 @@
     const config = useRuntimeConfig()
     const hostName = config.public.apiBaseUrl
 
-    // const { data: { value: { article } } } = await useAsyncData('article', () => {
-    //     const { slug } = params
-    //     return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
-    // })
-
-    // Por la respuesta y procesamiento de Netlify
-    // if (hostName.includes('localhost')){
-    //     const { data: { value: { article } } } = await useAsyncData('article', () => {
-    //         const { slug } = params
-    //         return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
-    //     })
-    // } else {
-    //     const { data: { value } } = await useAsyncData('article', () => {
-    //         const { slug } = params
-    //         return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
-    //     })
-    //     const { articles } = JSON.parse(value)
-    // }
-
-    const { data: { value: { article }}} = await useAsyncData('article', () => {
+    const { data: { value: { article, comments }}} = await useAsyncData('article', () => {
             const { slug } = params
             return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
         }, {
-        pick: ['article'],
+        pick: ['article', 'comments'],
         transform(data) {
             // Para respuestas JSON no parseadas
             if (typeof data === 'string') {
@@ -77,11 +76,15 @@
     // Y los metadatos.
     // https://nuxt.com/docs/getting-started/seo-meta
     useHead({
-        title: post?.title || 'Post Indefinido',
+        title: article?.title || 'Post Indefinido',
         meta: [
-            { name: 'description', content: post?.description || 'Sin descripción por el momento.' }
+            { name: 'description', content: article?.description || 'Sin descripción por el momento.' }
         ],
     })
+
+    async function createComment(comment) {
+      await useFetch(`${hostName}/.netlify/functions/comment?article=${article._id}`, {method: 'post', body: comment})
+    }
 </script>
 
 <style lang="scss">
