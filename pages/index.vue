@@ -26,8 +26,9 @@
     const hostName = config.public.apiBaseUrl
 
     const url = `${hostName}/.netlify/functions/articles`
+    console.log(url)
     const { data: {value: { articles }}} = await useAsyncData('articles', () => $fetch(url))
-    
+    console.log(articles)
     onMounted(() => {
         articleContent.articles = articles.map((a) => ({
             // Hacemos copia de los datos en a
