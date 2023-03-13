@@ -28,7 +28,9 @@
     const url = `${hostName}/.netlify/functions/articles`
     console.log(url)
     const { data: {value: { articles }}} = await useAsyncData('articles', () => $fetch(url))
+    const informacion = await useAsyncData('articles_2', () => $fetch(url))
     console.log(articles)
+    console.log(informacion)
     onMounted(() => {
         articleContent.articles = articles.map((a) => ({
             // Hacemos copia de los datos en a
