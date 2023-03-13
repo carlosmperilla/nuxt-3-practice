@@ -22,8 +22,10 @@
         articles: [],
     })
 
-    const url = `http://localhost:9999/.netlify/functions/articles`
-    // Desestructuramos data, y el Proxy 'value', para obtener el Proxy 'articles'
+    const config = useRuntimeConfig()
+    const hostName = config.public.apiBaseUrl
+
+    const url = `${hostName}/.netlify/functions/articles`
     const { data: {value: { articles }}} = await useAsyncData('articles', () => $fetch(url))
     
     onMounted(() => {

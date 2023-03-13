@@ -25,9 +25,13 @@
     // })
 
     const { params } = useRoute()
+
+    const config = useRuntimeConfig()
+    const hostName = config.public.apiBaseUrl
+
     const { data: { value: { article } } } = await useAsyncData('article', () => {
         const { slug } = params
-        return $fetch(`http://localhost:9999/.netlify/functions/article?slug=${slug}`);
+        return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
     })
 
     const post = computed(() => {
