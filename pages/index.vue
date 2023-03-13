@@ -26,14 +26,30 @@
     const hostName = config.public.apiBaseUrl
 
     const url = `${hostName}/.netlify/functions/articles`
-    console.log(url)
-    // const { data: {value: { articles }}} = await useAsyncData('articles', () => $fetch(url))
-    const informacion = await useAsyncData('articles_2', () => $fetch(url))
-    const {data: { value }} = await useAsyncData('articles_3', () => $fetch(url))
-    const { articles } = JSON.parse(value)
-    console.log(articles)
-    console.log(informacion)
-    // console.log(artata)
+
+    // Por la respuesta y procesamiento de Netlify
+    // if (hostName.includes('localhost')){
+    //     const { data: { value: { articles }}} = await useAsyncData('articles', () => $fetch(url))
+    //     console.log(articles)
+    //     console.log(typeof articles)
+    //     console.log((typeof articles === 'object'))
+    // } else {
+    //     const { data: { value }} = await useAsyncData('articles', () => $fetch(url))
+    //     const { articles } = JSON.parse(value)
+    //     console.log('d', articles)
+    // }
+    
+    // const { data: { value: { articles }}} = await useAsyncData('articles', () => $fetch(url), {
+    const { data: { value: { articles }}} = await useAsyncData('articles', () => $fetch(url), {
+        pick: ['articles'],
+        transform(data) {
+            if (typeof data === 'string') {
+                return JSON.parse(data)
+            }
+            return data
+        }
+    })
+
     onMounted(() => {
         articleContent.articles = articles.map((a) => ({
             // Hacemos copia de los datos en a

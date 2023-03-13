@@ -34,6 +34,20 @@
         return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
     })
 
+    // Por la respuesta y procesamiento de Netlify
+    if (hostName.includes('localhost')){
+        const { data: { value: { article } } } = await useAsyncData('article', () => {
+            const { slug } = params
+            return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
+        })
+    } else {
+        const { data: { value } } = await useAsyncData('article', () => {
+            const { slug } = params
+            return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
+        })
+        const { articles } = JSON.parse(value)
+    }
+
     const post = computed(() => {
         return {
             title: article?.title,
