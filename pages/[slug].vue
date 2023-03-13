@@ -1,5 +1,10 @@
 <template>
     <div class="box">
+    <!-- Loader Comments -->
+    <div
+      v-show="loadingComments"
+      class="fixed left-0 top-0 h-0.5 w-full z-50 bg-green-500"
+    ></div>
         <article class="post">
             <h1>{{ post.title }}</h1>
             <div class="author">
@@ -19,11 +24,11 @@
                     Hay {{ article['total-comments'] || 0 }} comentarios
                 </p>
                 <div class="comments-list">
-                <CommentItem
-                    v-for="comment in comments"
-                    :key="comment._id"
-                    v-bind="comment"
-                />
+                    <CommentItem
+                        v-for="comment in getComments"
+                        :key="comment._id"
+                        v-bind="comment"
+                    />
                 </div>
                 <div class="add-comment">
                     <InputComment @submit="createComment" />
@@ -42,24 +47,34 @@
     //     middleware: ['redirect-home']
     // })
 
+    const loadingComments = ref(false);
+
     const { params } = useRoute()
 
     const config = useRuntimeConfig()
     const hostName = config.public.apiBaseUrl
 
-    const { data: { value: { article, comments }}} = await useAsyncData('article', () => {
+    async function getDataArticle(pickKeys = ['article', 'comments']){
+        const data = await useAsyncData('article', () => {
             const { slug } = params
             return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
         }, {
-        pick: ['article', 'comments'],
-        transform(data) {
-            // Para respuestas JSON no parseadas
-            if (typeof data === 'string') {
-                return JSON.parse(data)
+            pick: pickKeys,
+            transform(data) {
+                // Para respuestas JSON no parseadas
+                if (typeof data === 'string') {
+                    return JSON.parse(data)
+                }
+                return data
             }
-            return data
-        }
-    })
+        })
+        return data
+    }
+
+    const { data: { value: { article, comments }} } = await getDataArticle()
+
+    // Inicializamos los comentarios con los datos obtenidos asincronamente.
+    const getComments = reactive(comments)
 
     const post = computed(() => {
         return {
@@ -83,7 +98,20 @@
     })
 
     async function createComment(comment) {
-      await useFetch(`${hostName}/.netlify/functions/comment?article=${article._id}`, {method: 'post', body: comment})
+        // Aparece la barra de carga en la parte superior de la pagina.
+        loadingComments.value = true
+        await useFetch(`${hostName}/.netlify/functions/comment`, {
+            method: 'post', body: comment, query: { article: article._id }
+        })
+
+        // Esperamos a que se actualice el DOM
+        await nextTick()
+        // Desaparece la barra de carga en la parte superiror de la pagina.
+        loadingComments.value = false
+
+        // Actualizamos comentarios.
+        const { data: { value: { comments }} } = await getDataArticle(['comments'])
+        Object.assign(getComments, comments)
     }
 </script>
 
