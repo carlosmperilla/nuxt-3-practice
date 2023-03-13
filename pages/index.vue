@@ -29,8 +29,11 @@
     console.log(url)
     const { data: {value: { articles }}} = await useAsyncData('articles', () => $fetch(url))
     const informacion = await useAsyncData('articles_2', () => $fetch(url))
+    const {data: { value }} = await useAsyncData('articles_3', () => $fetch(url))
+    const artata = JSON.parse(value)
     console.log(articles)
     console.log(informacion)
+    console.log(artata)
     onMounted(() => {
         articleContent.articles = articles.map((a) => ({
             // Hacemos copia de los datos en a
