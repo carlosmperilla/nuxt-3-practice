@@ -27,22 +27,10 @@
 
     const url = `${hostName}/.netlify/functions/articles`
 
-    // Por la respuesta y procesamiento de Netlify
-    // if (hostName.includes('localhost')){
-    //     const { data: { value: { articles }}} = await useAsyncData('articles', () => $fetch(url))
-    //     console.log(articles)
-    //     console.log(typeof articles)
-    //     console.log((typeof articles === 'object'))
-    // } else {
-    //     const { data: { value }} = await useAsyncData('articles', () => $fetch(url))
-    //     const { articles } = JSON.parse(value)
-    //     console.log('d', articles)
-    // }
-    
-    // const { data: { value: { articles }}} = await useAsyncData('articles', () => $fetch(url), {
     const { data: { value: { articles }}} = await useAsyncData('articles', () => $fetch(url), {
         pick: ['articles'],
         transform(data) {
+            // Para respuestas JSON no parseadas
             if (typeof data === 'string') {
                 return JSON.parse(data)
             }

@@ -29,24 +29,38 @@
     const config = useRuntimeConfig()
     const hostName = config.public.apiBaseUrl
 
-    const { data: { value: { article } } } = await useAsyncData('article', () => {
-        const { slug } = params
-        return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
-    })
+    // const { data: { value: { article } } } = await useAsyncData('article', () => {
+    //     const { slug } = params
+    //     return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
+    // })
 
     // Por la respuesta y procesamiento de Netlify
-    if (hostName.includes('localhost')){
-        const { data: { value: { article } } } = await useAsyncData('article', () => {
+    // if (hostName.includes('localhost')){
+    //     const { data: { value: { article } } } = await useAsyncData('article', () => {
+    //         const { slug } = params
+    //         return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
+    //     })
+    // } else {
+    //     const { data: { value } } = await useAsyncData('article', () => {
+    //         const { slug } = params
+    //         return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
+    //     })
+    //     const { articles } = JSON.parse(value)
+    // }
+
+    const { data: { value: { article }}} = await useAsyncData('article', () => {
             const { slug } = params
             return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
-        })
-    } else {
-        const { data: { value } } = await useAsyncData('article', () => {
-            const { slug } = params
-            return $fetch(`${hostName}/.netlify/functions/article?slug=${slug}`);
-        })
-        const { articles } = JSON.parse(value)
-    }
+        }, {
+        pick: ['article'],
+        transform(data) {
+            // Para respuestas JSON no parseadas
+            if (typeof data === 'string') {
+                return JSON.parse(data)
+            }
+            return data
+        }
+    })
 
     const post = computed(() => {
         return {
