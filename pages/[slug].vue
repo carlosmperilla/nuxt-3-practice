@@ -18,7 +18,8 @@
             </figure>
             <section class="markdown" v-html="post.content"></section>
 
-            <div ref="comments" class="comments">
+            <!-- <div ref="comments" class="comments"> -->
+            <div class="comments">
                 <h3 class="title">Comentarios</h3>
                 <p class="total-comments">
                     Hay {{ article['total-comments'] || 0 }} comentarios
