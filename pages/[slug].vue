@@ -21,8 +21,11 @@
             <!-- <div ref="comments" class="comments"> -->
             <div class="comments">
                 <h3 class="title">Comentarios</h3>
-                <p class="total-comments">
+                <!-- <p class="total-comments">
                     Hay {{ article['total-comments'] || 0 }} comentarios
+                </p> -->
+                <p class="total-comments">
+                    Hay {{ totalComments || 0 }} comentarios
                 </p>
                 <div class="comments-list">
                     <CommentItem
@@ -73,6 +76,7 @@
     }
 
     const { data: { value: { article, comments }} } = await getDataArticle()
+    const totalComments = ref(article['total-comments'])
 
     // Inicializamos los comentarios con los datos obtenidos asincronamente.
     const getComments = reactive(comments)
@@ -107,12 +111,15 @@
 
         // Esperamos a que se actualice el DOM
         await nextTick()
-        // Desaparece la barra de carga en la parte superiror de la pagina.
-        loadingComments.value = false
-
+        
         // Actualizamos comentarios.
         const { data: { value: { comments }} } = await getDataArticle(['comments'])
         Object.assign(getComments, comments)
+        
+        totalComments.value++
+
+        // Desaparece la barra de carga en la parte superiror de la pagina.
+        loadingComments.value = false
     }
 </script>
 
