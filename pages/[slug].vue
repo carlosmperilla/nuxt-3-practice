@@ -108,15 +108,15 @@
         await useFetch(`${hostName}/.netlify/functions/comment`, {
             method: 'post', body: comment, query: { article: article._id }
         })
-
-        // Esperamos a que se actualice el DOM
-        await nextTick()
         
         // Actualizamos comentarios.
         const { data: { value: { comments }} } = await getDataArticle(['comments'])
         Object.assign(getComments, comments)
         
         totalComments.value++
+
+        // Esperamos a que se actualice el DOM
+        await nextTick()
 
         // Desaparece la barra de carga en la parte superiror de la pagina.
         loadingComments.value = false
