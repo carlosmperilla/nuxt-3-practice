@@ -4,7 +4,7 @@
         <div class="content">
             <main>
                 <ArticleCard
-                    v-for="article in articleContent.articles"
+                    v-for="article in getArticles"
                     :key="article.slug"
                     :="article"
                 />
@@ -18,10 +18,6 @@
     // Mientras este en /components
     // https://nuxt.com/docs/guide/concepts/auto-imports
     // import AboutMe from '~/components/AboutMe.vue'
-    const articleContent = reactive({
-        articles: [],
-    })
-
     const config = useRuntimeConfig()
     const hostName = config.public.apiBaseUrl
 
@@ -38,8 +34,8 @@
         }
     })
 
-    onMounted(() => {
-        articleContent.articles = articles.map((a) => ({
+    const getArticles = computed(() => {
+        return articles.map((a) => ({
             // Hacemos copia de los datos en a
             ...a,
             // Sobreescribimos author, date y cover.
@@ -48,9 +44,7 @@
             date: new Date(a.updated),
             cover: a.cover[0]?.thumbnails.large.url,
         }))
-    })
-
-    
+    })    
 </script>
 
 <style lang="scss">
